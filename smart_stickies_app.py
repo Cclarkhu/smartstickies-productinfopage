@@ -1,77 +1,59 @@
-"""
-SmartStickies Tag Generator – Streamlit App (uses OpenAI o3)
-Run locally with:
-    python -m venv .venv && source .venv/bin/activate
-    pip install -r requirements.txt
-    streamlit run smart_stickies_app.py
-"""
-import os, streamlit as st, dotenv
-from openai import OpenAI
+import streamlit as st
 
-dotenv.load_dotenv()                       # loads .env
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-MODEL_NAME = "o3"
+# Fake product info (replace with real data/images as needed)
+PRODUCT = {
+    "name": "SmartStickies™ NFC Tag",
+    "image": "https://www.smart-stickies.com/assets/img/SmartStickies_hero.png",  # Example: public image link, update as needed!
+    "tagline": "Tap. Connect. Experience the Future of Retail.",
+    "description": (
+        "SmartStickies™ lets you instantly connect shoppers to digital content—no app required! "
+        "Transform any product or in-store display with our NFC-enabled stickers. "
+        "Perfect for product info, self-checkout, loyalty programs, and more."
+    ),
+    "features": [
+        "NFC tap-to-connect (no app needed)",
+        "Works on any product or shelf",
+        "Customizable digital actions (URL, SMS, map, email, promo)",
+        "Secure & privacy-safe",
+        "Quick to set up with our free mobile app",
+        "Boosts in-store engagement and conversions"
+    ],
+    "price": "$19.99 (10-pack)",
+    "video_url": "https://www.youtube.com/embed/XgYu7-DQjDQ"  # Replace with real promo/demo if available
+}
 
-def generate(product, store, goal, tone, words):
-    prompt = (
-        f"Product: {product}\nStore type: {store}\nGoal: {goal}\nTone: {tone}\n"
-        f"Word-count target: {words}\n\n"
-        "Return JSON with keys 'headline', 'short_description', 'cta', "
-        "'key_benefits' (array). Max 60 words total."
-    )
-    resp = client.chat.completions.create(
-        model=MODEL_NAME,
-        messages=[{"role": "user", "content": prompt}],
-        temperature=0.7,
-    )
-    return resp.choices[0].message.content.strip()
+st.set_page_config(page_title=PRODUCT["name"], page_icon=":label:")
 
-st.set_page_config(page_title="SmartStickies Tag Generator", layout="centered")
-st.title("🗒️ SmartStickies Tag Generator (o3)")
+# Product image
+st.image(PRODUCT["image"], use_column_width=True)
 
-with st.form("form"):
-"""
-SmartStickies Tag Generator – Streamlit App (uses OpenAI o3)
-Run locally with:
-    python -m venv .venv && source .venv/bin/activate
-    pip install -r requirements.txt
-    streamlit run smart_stickies_app.py
-"""
-import os, streamlit as st, dotenv
-from openai import OpenAI
+# Product name and tagline
+st.title(PRODUCT["name"])
+st.subheader(PRODUCT["tagline"])
 
-dotenv.load_dotenv()                       # loads .env
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-MODEL_NAME = "o3"
+# Short description
+st.write(PRODUCT["description"])
 
-def generate(product, store, goal, tone, words):
-    prompt = (
-        f"Product: {product}\nStore type: {store}\nGoal: {goal}\nTone: {tone}\n"
-        f"Word-count target: {words}\n\n"
-        "Return JSON with keys 'headline', 'short_description', 'cta', "
-        "'key_benefits' (array). Max 60 words total."
-    )
-    resp = client.chat.completions.create(
-        model=MODEL_NAME,
-        messages=[{"role": "user", "content": prompt}],
-        temperature=0.7,
-    )
-    return resp.choices[0].message.content.strip()
+# Feature list
+st.markdown("**Key Features:**")
+for feature in PRODUCT["features"]:
+    st.markdown(f"- {feature}")
 
-st.set_page_config(page_title="SmartStickies Tag Generator", layout="centered")
-st.title("🗒️ SmartStickies Tag Generator (o3)")
+# Price
+st.markdown(f"### Price: {PRODUCT['price']}")
 
-with st.form("form"):
-    product = st.text_input("Product name")
-    store   = st.text_input("Store type")
-    goal    = st.text_area("Engagement goal")
-    tone    = st.selectbox("Tone", ["Friendly", "Professional", "Playful", "Luxury"])
-    words   = st.slider("Approx. word-count", 20, 60, 40)
-    submitted = st.form_submit_button("Generate")
+# Action buttons
+col1, col2, col3 = st.columns(3)
+with col1:
+    st.button("Buy Now 🛒")
+with col2:
+    st.button("Learn More ℹ️")
+with col3:
+    st.button("Share 🔗")
 
-if submitted:
-    if not all([product, store, goal]):
-        st.error("Please fill all fields.")
-        st.stop()
-    st.code(generate(product, store, goal, tone, words), language="json")
+# Promo/demo video (optional)
+st.markdown("#### See SmartStickies in Action:")
+st.video(PRODUCT["video_url"])
 
+# Footer or legal
+st.caption("© 2025 SmartStickies. All rights reserved.")

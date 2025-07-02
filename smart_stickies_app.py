@@ -1,59 +1,97 @@
-import streamlit as st
+# smart_stickies_product_page.py
+#
+# Streamlit Product-Info prototype powered by O3 (GPT-3.5-Turbo)
+# --------------------------------------------------------------
+# 1. pip install streamlit openai
+# 2. streamlit run smart_stickies_product_page.py
+# --------------------------------------------------------------
 
-# Fake product info (replace with real data/images as needed)
+import streamlit as st
+import openai
+import time
+from datetime import datetime
+
+# ----------  Product “ground-truth”  ----------
 PRODUCT = {
     "name": "SmartStickies™ NFC Tag",
-    "image": "https://www.smart-stickies.com/assets/img/SmartStickies_hero.png",  # Example: public image link, update as needed!
-    "tagline": "Tap. Connect. Experience the Future of Retail.",
-    "description": (
-        "SmartStickies™ lets you instantly connect shoppers to digital content—no app required! "
-        "Transform any product or in-store display with our NFC-enabled stickers. "
-        "Perfect for product info, self-checkout, loyalty programs, and more."
-    ),
-    "features": [
-        "NFC tap-to-connect (no app needed)",
-        "Works on any product or shelf",
-        "Customizable digital actions (URL, SMS, map, email, promo)",
-        "Secure & privacy-safe",
-        "Quick to set up with our free mobile app",
-        "Boosts in-store engagement and conversions"
-    ],
+    "image": "https://www.smart-stickies.com/_next/static/media/smart-sticky.4e8c1234.png",  # replace with real asset
     "price": "$19.99 (10-pack)",
-    "video_url": "https://www.youtube.com/embed/XgYu7-DQjDQ"  # Replace with real promo/demo if available
+    "spec_sheet": """
+SmartStickies are peel-and-stick NFC tags for instant phygital engagement.
+• ISO-14443 NFC Type 4 compliant
+• Works through glass & plastic < 2 mm
+• Custom 29 mm diameter, matte finish
+• Data retention ≥ 10 years
+• Water-resistant (IP67)
+""".strip()
 }
 
-st.set_page_config(page_title=PRODUCT["name"], page_icon=":label:")
-
-# Product image
+# ----------  Streamlit page setup  ----------
+st.set_page_config(page_title=PRODUCT["name"], page_icon=":label:", layout="wide")
 st.image(PRODUCT["image"], use_column_width=True)
-
-# Product name and tagline
 st.title(PRODUCT["name"])
-st.subheader(PRODUCT["tagline"])
+st.markdown(f"**Price:** {PRODUCT['price']}")
 
-# Short description
-st.write(PRODUCT["description"])
+# ----------  API key + prompt controls  ----------
+api_key = st.text_input("OpenAI API key", type="password")
+default_prompt = (
+    "Write a 40-word product tagline and a 4-bullet benefit list "
+    "for the SmartStickies NFC Tag below. Keep the tone energetic, retail-friendly, no hype-words."
+)
+prompt = st.text_area("Custom prompt (optional)", value=default_prompt, height=100)
+generate_btn = st.button("✨ Generate / Refresh Copy with O3")
 
-# Feature list
-st.markdown("**Key Features:**")
-for feature in PRODUCT["features"]:
-    st.markdown(f"- {feature}")
+# ----------  Placeholder areas  ----------
+tagline_area = st.empty()
+bullets_area = st.empty()
+metrics_area = st.empty()
 
-# Price
-st.markdown(f"### Price: {PRODUCT['price']}")
+# ----------  Run O3 when the user clicks  ----------
+if generate_btn:
+    if not api_key:
+        st.error("Please enter your OpenAI API key.")
+        st.stop()
 
-# Action buttons
-col1, col2, col3 = st.columns(3)
-with col1:
-    st.button("Buy Now 🛒")
-with col2:
-    st.button("Learn More ℹ️")
-with col3:
-    st.button("Share 🔗")
+    openai.api_key = api_key
+    system_msg = (
+        "You are a marketing copywriter for Smart Stickies. "
+        "Return Markdown only: a one-line tagline in **bold** then a bullet list."
+    )
 
-# Promo/demo video (optional)
-st.markdown("#### See SmartStickies in Action:")
-st.video(PRODUCT["video_url"])
+    user_prompt = prompt or default_prompt
+    user_prompt += "\n\nPRODUCT SPECS:\n" + PRODUCT["spec_sheet"]
 
-# Footer or legal
-st.caption("© 2025 SmartStickies. All rights reserved.")
+    start = time.perf_counter()
+    try:
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",   # ← O3 in the API
+            temperature=0.7,
+            messages=[
+                {"role": "system", "content": system_msg},
+                {"role": "user", "content": user_prompt}
+            ]
+        )
+    except Exception as e:
+        st.error(f"O3 error: {e}")
+        st.stop()
+
+    duration_ms = (time.perf_counter() - start) * 1000
+    ai_content = response.choices[0].message.content
+    usage = response.usage  # has prompt_tokens & completion_tokens
+
+    # ----------  Show results  ----------
+    tagline_area.markdown(ai_content, unsafe_allow_html=True)
+    metrics_area.caption(
+        f"🕒 {duration_ms:,.0f} ms  |  "
+        f"🔢 prompt {usage.prompt_tokens} tkn  |  "
+        f"output {usage.completion_tokens} tkn  |  "
+        f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+    )
+
+# ----------  Static footer  ----------
+st.markdown("---")
+st.write(
+    "SmartStickies instantly connects offline shoppers to digital experiences with a single tap—"
+    "no app, no QR code, pure NFC magic."
+)
+st.caption("© 2025 SmartStickies Inc.")

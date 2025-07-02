@@ -1,6 +1,36 @@
+# Smart Stickies Product Info Page (O3 Prototype)
 
-streamlit
-openai
-python-dotenv
+This is a Streamlit web app that generates marketing copy for Smart Stickies using the O3 (GPT-3.5 Turbo) model from OpenAI.
 
-instructions
+---
+
+## 🚀 Quick Start
+
+1. **Clone this repository or download as ZIP:**
+   ```bash
+   git clone https://github.com/aarrushm/smartstickies-productinfopage.git
+Navigate to the project folder:
+
+bash
+Copy
+Edit
+cd smartstickies-productinfopage
+Switch to the O3 prototype branch:
+
+bash
+Copy
+Edit
+git checkout o3-first-draft
+Install the required Python packages:
+
+bash
+Copy
+Edit
+pip install -r requirements.txt
+Run the Streamlit app:
+
+bash
+Copy
+Edit
+streamlit run smart_stickies_app.py
+Paste your OpenAI API key into the app when prompted.

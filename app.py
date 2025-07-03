@@ -8,7 +8,7 @@ def cached_vdb():
     return load_vector_store()
 
 st.title("📝 Smart Stickies Product-Page Generator")
-st.markdown("_Powered by RAG + GPT-4o-mini_")
+st.markdown("_Powered by RAG + GPT-3o-mini_")
 
 sku = st.text_input("Enter SKU code or product name:", placeholder="e.g. SS-123")
 if st.button("Generate") and sku:

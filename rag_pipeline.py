@@ -53,7 +53,7 @@ def load_vector_store(index_path: pathlib.Path = INDEX_DIR) -> FAISS:
 
 def generate_product_page(query: str,
                           vdb: FAISS,
-                          model: str = "gpt-4o-mini",
+                          model: str = "gpt-3o-mini",
                           k: int = 3,
                           system_prompt: str | None = None) -> str:
     """Retrieve top-k chunks and ask the LLM to write a product page."""
